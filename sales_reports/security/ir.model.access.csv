@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_sales_summary_report_wizard,sales_reports.sales.summary.report.wizard,model_sales_summary_wizard,,1,1,1,1
+access_daywise_invoice_report_wizard,sales_reports.daywise.invoice.report.wizard,model_sale_invoice_wizard,,1,1,1,1
+

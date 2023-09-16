@@ -1,0 +1,103 @@
+<odoo>
+    <template id="daywise_summary_report_template">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h2 class="text-center">Day Wise Invoice Summary Report</h2>
+                    <t t-if="record[0] or record[1]">
+                        <div class="date-range">
+                            <p><strong># From Date:</strong> <t t-esc="record[0]"/></p>
+                            <p><strong># To Date:</strong> <t t-esc="record[1]"/></p>
+                        </div>
+                    </t>
+                    <div class="report-content">
+                        <table class="centered-table" style="margin: 0 auto; width: 70%;">
+                            <thead>
+                                <tr>
+                                    <th class="text-left" >SI No.</th>
+                                    <th class="text-left" >Invoice Date</th>
+                                    <th class="text-left" >Taxable Amount</th>
+                                    <th class="text-left" >Tax</th>
+                                    <th class="text-left" >Net Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="prev_date" t-value="None" />
+                                <t t-set="sl_no" t-value="1" />
+                                <t t-foreach="sorted(sales, key=lambda x: x['invoice_date'])" t-as="sale">
+                                    <t t-if="prev_date != sale['invoice_date']">
+                                        <t t-if="prev_date">
+                                            <tr class="summary-row">
+                                                <td>
+                                                    <span t-esc="sl_no"/>
+                                                </td>
+                                                <t t-set="sl_no" t-value="sl_no+1"/>
+                                                <td><t t-esc="prev_date"/></td>
+                                                <td class="taxable-amount"><t t-esc="currency"/><t t-esc="sub_taxable" t-options='{"widget": "float", "precision": 2}'/></td>
+                                                <td class="tax"><t t-esc="currency"/><t t-esc="sub_tax" t-options='{"widget": "float", "precision": 2}'/></td>
+                                                <td class="net-amount"><t t-esc="currency"/><t t-esc="sub_net" t-options='{"widget": "float", "precision": 2}'/></td>
+                                            </tr>
+
+                                        </t>
+                                        <t t-set="prev_date" t-value="sale['invoice_date']"/>
+                                        <t t-set="sub_taxable" t-value="0"/>
+                                        <t t-set="sub_tax" t-value="0"/>
+                                        <t t-set="sub_net" t-value="0"/>
+                                    </t>
+                                    <t t-set="sub_taxable" t-value="sub_taxable+sale['taxable_amount']"/>
+                                    <t t-set="sub_tax" t-value="sub_tax+sale['taxes']"/>
+                                    <t t-set="sub_net" t-value="sub_net+sale['net_amount']"/>
+                                </t>
+                                <tr class="summary-row">
+                                    <td>
+                                        <span t-esc="sl_no"/>
+                                    </td>
+                                    <td><t t-esc="prev_date"/></td>
+                                    <td class="taxable-amount"><t t-esc="currency"/><t t-esc="sub_taxable" t-options='{"widget": "float", "precision": 2}'/></td>
+                                    <td class="tax"><t t-esc="currency"/><t t-esc="sub_tax" t-options='{"widget": "float", "precision": 2}'/></td>
+                                    <td class="net-amount"><t t-esc="currency"/><t t-esc="sub_net" t-options='{"widget": "float", "precision": 2}'/></td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr></tr>
+                                <tr>
+                                <th class="text-left" colspan="2">Grand Total</th>
+                                <td class="text-left">
+                                    <t t-set="subtotal" t-value="0"/>
+                                    <t t-foreach="sales" t-as="sale">
+                                        <t t-set="subtotal" t-value="subtotal+sale['taxable_amount']"/>
+                                    </t>
+                                    <p style="font-family: Arial, Helvetica, sans-serif"><strong><t t-esc="currency"/> <t t-esc="subtotal" t-options='{"widget": "float", "precision": 2}'/></strong></p>
+                                </td>
+                                <td class="text-left">
+                                    <t t-set="tax" t-value="0"/>
+                                    <t t-foreach="sales" t-as="sale">
+                                        <t t-set="tax" t-value="tax+sale['taxes']"/>
+                                    </t>
+                                    <p style="font-family: Arial, Helvetica, sans-serif"><strong><t t-esc="currency"/> <t t-esc="tax" t-options='{"widget": "float", "precision": 2}'/></strong></p>
+                                </td>
+                                <td class="text-left">
+                                    <t t-set="grand_net" t-value="0"/>
+                                    <t t-foreach="sales" t-as="sale">
+                                        <t t-set="grand_net" t-value="grand_net+sale['net_amount']"/>
+                                    </t>
+                                    <p style="font-family: Arial, Helvetica, sans-serif"><strong><t t-esc="currency"/> <t t-esc="grand_net" t-options='{"widget": "float", "precision": 2}'/></strong></p>
+                                </td>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+            </t>
+        </t>
+    </template>
+    <record id="daywise_summary_report_action" model="ir.actions.report">
+        <field name="name">Day Wise Invoice Summary Report</field>
+        <field name="model">account.move</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sales_reports.daywise_summary_report_template</field>
+        <field name="attachment_use">False</field>
+        <field name="report_file">module_name.report_template_name</field>
+    </record>
+</odoo>

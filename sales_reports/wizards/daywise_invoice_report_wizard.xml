@@ -1,0 +1,36 @@
+<odoo>
+    <record id="invoice_report_form" model="ir.ui.view">
+        <field name="name">sales.report.form</field>
+        <field name="model">sale.invoice.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="from_date" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"/>
+                    <field name="to_date" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"/>
+                    <field name="show_daywise_report"/>
+                    <field name="show_monthwise_report"/>
+                    <field name="daywise_summary_report"/>
+                    <field name="monthwise_summary_report"/>
+<!--                    <field name="show_report"/>-->
+                </group>
+                <footer>
+                    <button type="object" name="get_report" string="Submit" class="btn btn-primary" style="background-color: #007bff; color: #fff; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;"/>
+                </footer>
+            </form>
+    </field>
+     </record>
+    <record id="invoice_report_wizard_action" model="ir.actions.act_window">
+        <field name="name">Invoice Report</field>
+            <field name="res_model">sale.invoice.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+
+    </record>
+    <menuitem id="invoice_reports_menu"
+          name="Invoice Report"
+          parent="reports_root_menu"
+          sequence="1"
+          action="invoice_report_wizard_action"
+          />
+</odoo>
+

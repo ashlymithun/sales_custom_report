@@ -1,0 +1,31 @@
+<odoo>
+    <record id="sales_invoice_report_form" model="ir.ui.view">
+        <field name="name">sales.report.form</field>
+        <field name="model">sales.summary.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="from_date"/>
+                    <field name="to_date"/>
+                </group>
+                <footer>
+                    <button type="object" name="get_report" string="Get Report" class="btn btn-primary" />
+                </footer>
+            </form>
+    </field>
+     </record>
+    <record id="sales_invoice_report_wizard_action" model="ir.actions.act_window">
+        <field name="name">Sales Invoice Report</field>
+            <field name="res_model">sales.summary.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+
+    </record>
+    <menuitem id="sales_invoice_reports_menu"
+          name="Sales Invoice Report"
+          parent="reports_root_menu"
+          sequence="1"
+          action="sales_invoice_report_wizard_action"
+          />
+</odoo>
+

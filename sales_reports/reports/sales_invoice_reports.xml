@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <template id="sales_invoice_report_template">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h2 class="text-center">Sales Invoice Report</h2>
+                    <link rel="stylesheet" href="/sales_reports/static/src/css/custom_css.css"/>
+                    <table class="table table-bordered w-100">
+                        <thead class="theader">
+                            <tr>
+                                <th class="text-center" style="width:5%">SI no.</th>
+                                <th class="text-left">Invoice No.</th>
+                                <th class="text-left">Invoice date</th>
+                                <th class="text-left">Customer</th>
+                                <th class="text-right">Taxable Amount</th>
+                                <th class="text-right">Tax</th>
+                                <th class="text-right">Net Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="sl_no" t-value="1" />
+                            <t t-foreach="sales" t-as="sale">
+                                <tr>
+                                    <td>
+                                        <span t-esc="sl_no"/>
+                                    </td>
+                                    <t t-set="sl_no" t-value="sl_no+1"/>
+                                    <td><t t-esc="sale['invoice_no']"/></td>
+                                    <td><t t-esc="sale['invoice_date']"/></td>
+                                    <td><t t-esc="sale['customer']"/></td>
+                                    <td class="text-right"><t t-esc="currency"/> <t t-esc="sale['taxable_amount']" t-options='{"widget": "float", "precision": 2}'/></td>
+                                    <td class="text-right"><t t-esc="currency"/> <t t-esc="sale['taxes']" t-options='{"widget": "float", "precision": 2}'/></td>
+                                    <td class="text-right"><t t-esc="currency"/> <t t-esc="sale['net_amount']" t-options='{"widget": "float", "precision": 2}'/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                  <div class="w-100">
+                    <table class="table ml-auto no-border" style="width:400px">
+                            <tr>
+                                <th class="text-right" colspan="5">Total taxable Amount:</th>
+                                <td class="text-right">
+                                    <t t-set="subtotal" t-value="0"/>
+                                    <t t-foreach="sales" t-as="sale">
+                                        <t t-set="subtotal" t-value="subtotal+sale['taxable_amount']"/>
+                                    </t>
+                                    <p style="font-family: Arial, Helvetica, sans-serif"><strong><t t-esc="currency"/> <t t-esc="subtotal" t-options='{"widget": "float", "precision": 2}'/></strong></p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-right" colspan="5">Total Tax:</th>
+                                <td class="text-right">
+                                    <t t-set="tax" t-value="0"/>
+                                    <t t-foreach="sales" t-as="sale">
+                                        <t t-set="tax" t-value="tax+sale['taxes']"/>
+                                    </t>
+                                    <p style="font-family: Arial, Helvetica, sans-serif"><strong><t t-esc="currency"/> <t t-esc="tax" t-options='{"widget": "float", "precision": 2}'/></strong></p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-right" colspan="5">Grand Net Amount:</th>
+                                <td class="text-right">
+                                    <t t-set="grand_net" t-value="0"/>
+                                    <t t-foreach="sales" t-as="sale">
+                                        <t t-set="grand_net" t-value="grand_net+sale['net_amount']"/>
+                                    </t>
+                                    <p style="font-family: Arial, Helvetica, sans-serif"><strong><t t-esc="currency"/> <t t-esc="grand_net" t-options='{"widget": "float", "precision": 2}'/></strong></p>
+                                </td>
+                            </tr>
+                    </table>
+                  </div>
+
+                </div>
+                </t>
+            </t>
+    </template>
+    <record id="sales_invoice_report_action" model="ir.actions.report">
+        <field name="name">Sales Invoice Report</field>
+        <field name="model">account.move</field>
+        <field name="report_type">qweb-html</field>
+        <field name="report_name">sales_reports.sales_invoice_report_template</field>
+        <field name="attachment_use">False</field>
+        <field name="report_file">sales_reports.sales_invoice_report_template</field>
+    </record>
+</odoo>
+

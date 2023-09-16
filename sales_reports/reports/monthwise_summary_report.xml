@@ -1,0 +1,120 @@
+<odoo>
+    <template id="month_wise_summary_report_template">
+        <t t-call="web.html_container">
+            <div t-call="web.external_layout">
+                <table class="page">
+                    <h2 class="text-center">Month Wise Invoice Summary Report</h2>
+                    <t t-if="record[0] or record[1]">
+                            <table class="text-center">
+                                <thead>
+                                    <tr>
+                                        <th style="width:200px"># From Date:</th>
+                                        <th style="width:200px"># To Date:</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                   <tr>
+                                       <td><p><t t-esc="record[0]"/></p></td>
+                                       <td><p><t t-esc="record[1]"/></p></td>
+                                   </tr>
+                                </tbody>
+                            </table>
+                    </t>
+                        <div class="report-content">
+                        <table class="centered-table" style="margin: 0 auto; width: 70%;">
+                            <thead>
+                                <tr>
+                                    <th class="text-left">SI No.</th>
+                                    <th class="text-left">Month</th>
+                                    <th class="text-left">Taxable Amount</th>
+                                    <th class="text-left">Tax</th>
+                                    <th class="text-left">Net Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="sl_no" t-value="1" />
+                                <t t-set="prev_month" t-value="None"/>
+                                <t t-set="sub_taxable" t-value="0"/>
+                                <t t-set="sub_tax" t-value="0"/>
+                                <t t-set="sub_net" t-value="0"/>
+                                <t t-set="month_names" t-value="{'01': 'January', '02': 'February', '03': 'March', '04': 'April', '05': 'May', '06': 'June', '07': 'July', '08': 'August', '09': 'September', '10': 'October', '11': 'November', '12': 'December'}"/>
+
+                                <t t-foreach="sorted(sales, key=lambda x: x['invoice_date'])" t-as="sale">
+                                    <t t-set="year_month" t-value="str(sale['invoice_date'])[0:7]"/>
+
+                                    <t t-if="prev_month != year_month">
+                                        <t t-if="prev_month">
+                                            <tr>
+                                                <td>
+                                                    <span t-esc="sl_no"/>
+                                                </td>
+                                                <t t-set="sl_no" t-value="sl_no+1"/>
+                                                <td><t t-esc="month_names[prev_month.split('-')[1]]" /> <t t-esc="prev_month.split('-')[0]" /></td>
+                                                <td class="text-left"><t t-esc="sub_taxable" t-options='{"widget": "float", "precision": 2}'/></td>
+                                                <td class="text-left"><t t-esc="sub_tax" t-options='{"widget": "float", "precision": 2}'/></td>
+                                                <td class="text-left"><t t-esc="sub_net" t-options='{"widget": "float", "precision": 2}'/></td>
+                                            </tr>
+                                        </t>
+                                        <t t-set="prev_month" t-value="year_month"/>
+                                        <t t-set="sub_taxable" t-value="0"/>
+                                        <t t-set="sub_tax" t-value="0"/>
+                                        <t t-set="sub_net" t-value="0"/>
+                                    </t>
+                                    <t t-set="sub_taxable" t-value="sub_taxable+sale['taxable_amount']"/>
+                                    <t t-set="sub_tax" t-value="sub_tax+sale['taxes']"/>
+                                    <t t-set="sub_net" t-value="sub_net+sale['net_amount']"/>
+                                </t>
+
+                                <tr class="summary-row">
+                                    <td>
+                                        <span t-esc="sl_no"/>
+                                    </td>
+                                    <td><t t-esc="month_names[prev_month.split('-')[1]]" /> <t t-esc="prev_month.split('-')[0]" /></td>
+                                    <td class="taxable-amount"><t t-esc="sub_taxable" t-options='{"widget": "float", "precision": 2}'/></td>
+                                    <td class="tax"><t t-esc="sub_tax" t-options='{"widget": "float", "precision": 2}'/></td>
+                                    <td class="net-amount"><t t-esc="sub_net" t-options='{"widget": "float", "precision": 2}'/></td>
+                                </tr>
+                            </tbody>
+                        <tfoot>
+                            <th class="text-left" colspan="2">Grand Total:</th>
+                                <td class="text-left">
+                                    <t t-set="subtotal" t-value="0"/>
+                                    <t t-foreach="sales" t-as="sale">
+                                        <t t-set="subtotal" t-value="subtotal+sale['taxable_amount']"/>
+                                    </t>
+                                    <p style="font-family: Arial, Helvetica, sans-serif"><strong><t t-esc="currency"/> <t t-esc="subtotal" t-options='{"widget": "float", "precision": 2}'/></strong></p>
+                                </td>
+
+                                <td class="text-left">
+                                    <t t-set="tax" t-value="0"/>
+                                    <t t-foreach="sales" t-as="sale">
+                                        <t t-set="tax" t-value="tax+sale['taxes']"/>
+                                    </t>
+                                    <p style="font-family: Arial, Helvetica, sans-serif"><strong><t t-esc="currency"/> <t t-esc="tax" t-options='{"widget": "float", "precision": 2}'/></strong></p>
+                                </td>
+
+                                <td class="text-left">
+                                    <t t-set="grand_net" t-value="0"/>
+                                    <t t-foreach="sales" t-as="sale">
+                                        <t t-set="grand_net" t-value="grand_net+sale['net_amount']"/>
+                                    </t>
+                                    <p style="font-family: Arial, Helvetica, sans-serif"><strong><t t-esc="currency"/> <t t-esc="grand_net" t-options='{"widget": "float", "precision": 2}'/></strong></p>
+                                </td>
+                        </tfoot>
+
+                </table>
+                 </div>
+                </table>
+                </div>
+            </t>
+    </template>
+    <record id="month_wise_summary_report_action" model="ir.actions.report">
+        <field name="name">Month Wise Invoice Summary Report</field>
+        <field name="model">account.move</field>
+        <field name="report_type">qweb-html</field>
+        <field name="report_name">sales_reports.month_wise_summary_report_template</field>
+        <field name="attachment_use">False</field>
+        <field name="report_file">sales_reports.month_wise_summary_report_template</field>
+    </record>
+</odoo>
+
